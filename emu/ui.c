@@ -316,6 +316,9 @@ int ui_display_startup_screens(running_machine &machine, int first_time, int sho
 	int show_gameinfo = !machine.options().skip_gameinfo();
 	int show_warnings = TRUE;
 	int state;
+	
+	/* ADDED BY RZR */
+	show_gameinfo = show_warnings = show_disclaimer = FALSE;
 
 	/* disable everything if we are using -str for 300 or fewer seconds, or if we're the empty driver,
 	   or if we are debugging */
@@ -432,10 +435,13 @@ void ui_update_and_render(running_machine &machine, render_container *container)
 	ui_handler_param = (*ui_handler_callback)(machine, container, ui_handler_param);
 
 	/* display any popup messages */
+	
+/* 	
 	if (osd_ticks() < popup_text_end)
 		ui_draw_text_box(container, messagebox_text, JUSTIFY_CENTER, 0.5f, 0.9f, messagebox_backcolor);
 	else
-		popup_text_end = 0;
+		popup_text_end = 0; 
+*/
 
 	if (ui_mouse_show || (machine.options().ui_mouse() && ui_is_menu_active()))
 	{
@@ -1208,7 +1214,7 @@ astring &game_info_astring(running_machine &machine, astring &string)
 
 static UINT32 handler_messagebox(running_machine &machine, render_container *container, UINT32 state)
 {
-	ui_draw_text_box(container, messagebox_text, JUSTIFY_LEFT, 0.5f, 0.5f, messagebox_backcolor);
+	//ui_draw_text_box(container, messagebox_text, JUSTIFY_LEFT, 0.5f, 0.5f, messagebox_backcolor);
 	return 0;
 }
 

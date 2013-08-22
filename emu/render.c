@@ -1389,6 +1389,7 @@ render_primitive_list &render_target::get_primitives()
 	// if we are not in the running stage, draw an outer box
 	else
 	{
+		/*
 		render_primitive *prim = list.alloc(render_primitive::QUAD);
 		set_render_bounds_xy(&prim->bounds, 0.0f, 0.0f, (float)m_width, (float)m_height);
 		set_render_color(&prim->color, 1.0f, 1.0f, 1.0f, 1.0f);
@@ -1405,6 +1406,7 @@ render_primitive_list &render_target::get_primitives()
 			prim->flags = PRIMFLAG_BLENDMODE(BLENDMODE_ALPHA);
 			list.append(*prim);
 		}
+		*/
 	}
 
 	// process the debug containers

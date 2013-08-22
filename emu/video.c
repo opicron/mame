@@ -82,6 +82,11 @@ const UINT8 video_manager::s_skiptable[FRAMESKIP_LEVELS][FRAMESKIP_LEVELS] =
 };
 
 
+// Added by RZR 
+bool		    game_start_skip;
+bool		    game_skip_init;
+UINT32		    game_skip_frames;
+
 
 //**************************************************************************
 //  VIDEO MANAGER
@@ -134,7 +139,13 @@ video_manager::video_manager(running_machine &machine)
 		m_movie_frame_period(attotime::zero),
 		m_movie_next_frame_time(attotime::zero),
 		m_movie_frame(0)
-{
+{	
+
+	// added by RZR
+	game_start_skip = true;
+	game_skip_init = true;
+	game_skip_frames = 1;
+
 	// request a callback upon exiting
 	machine.add_notifier(MACHINE_NOTIFY_EXIT, machine_notify_delegate(FUNC(video_manager::exit), this));
 	machine.save().register_postload(save_prepost_delegate(FUNC(video_manager::postload), this));
@@ -221,20 +232,58 @@ void video_manager::set_frameskip(int frameskip)
 
 void video_manager::frame_update(bool debug)
 {
+
+	if (game_skip_init)
+	{
+		FILE 	*fp;		
+		char	gamename[20];		
+		int	frameskip; 
+
+		fp = fopen("frame_skip.txt", "r+");
+		while(fscanf(fp,"%s %d",gamename,&frameskip) == 2)  
+		{  
+		        //printf("\n%s \t %d", gamename,frameskip);  		
+			if ( strcmp( machine().basename(), gamename) == 0) game_skip_frames = frameskip;
+		}
+
+		game_skip_init = false;
+	}
+
 	// only render sound and video if we're in the running phase
 	int phase = machine().phase();
 	bool skipped_it = m_skipping_this_frame;
 	if (phase == MACHINE_PHASE_RUNNING && (!machine().paused() || machine().options().update_in_pause()))
 	{
+		
+		if (game_start_skip) 
+		{
+			if (m_empty_skip_count <= game_skip_frames) 
+			{
+				skipped_it = true;
+				m_empty_skip_count++;
+			}			
+			else
+			{
+				game_start_skip = false;
+			}	
+		}
+
+		
 		bool anything_changed = finish_screen_updates();
 
+		
+		
 		// if none of the screens changed and we haven't skipped too many frames in a row,
 		// mark this frame as skipped to prevent throttling; this helps for games that
 		// don't update their screen at the monitor refresh rate
 		if (!anything_changed && !m_auto_frameskip && m_frameskip_level == 0 && m_empty_skip_count++ < 3)
+		{
 			skipped_it = true;
+		}
 		else
-			m_empty_skip_count = 0;
+		{	
+			if (!game_start_skip) m_empty_skip_count = 0;			
+		}	
 	}
 
 	// draw the user interface

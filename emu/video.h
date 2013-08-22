@@ -174,7 +174,8 @@ private:
 	UINT32              m_speed;                    // overall speed (*1000)
 
 	// frameskipping
-	UINT8               m_empty_skip_count;         // number of empty frames we have skipped
+	// changed by RZR
+	UINT32               m_empty_skip_count;         // number of empty frames we have skipped
 	UINT8               m_frameskip_level;          // current frameskip level
 	UINT8               m_frameskip_counter;        // counter that counts through the frameskip steps
 	INT8                m_frameskip_adjust;
